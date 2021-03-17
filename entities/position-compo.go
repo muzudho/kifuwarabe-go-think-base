@@ -16,7 +16,7 @@ var AllPlayouts int
 var UctChildrenSize int
 
 // Playout - 最後まで石を打ちます。得点を返します。
-func Playout(position *be.Position, turnColor int, printBoard func(*be.Position)) int {
+func Playout(position *be.Position, turnColor int, createBoardString func(*be.Position) string) int {
 	boardSize := (*position).BoardSize()
 
 	color := turnColor
@@ -57,7 +57,7 @@ func Playout(position *be.Position, turnColor int, printBoard func(*be.Position)
 			break
 		}
 		previousTIdx = tIdx
-		// printBoard()
+		// createBoardString()
 		// fmt.Printf("loop=%d,tIdx=%s,c=%d,emptyNum=%d,Ko=%s\n",
 		// 	loop, e.GetNameFromXY(tIdx), color, emptyNum, e.GetNameFromXY(position.KoIdx()))
 		color = stone.FlipColor(color)
@@ -110,7 +110,7 @@ func countScore(position *be.Position, turnColor int) int {
 }
 
 // PrimitiveMonteCalro - モンテカルロ木探索 Version 9a.
-func PrimitiveMonteCalro(position *be.Position, color int, printBoard func(*be.Position)) int {
+func PrimitiveMonteCalro(position *be.Position, color int, createBoardString func(*be.Position) string) int {
 	boardSize := (*position).BoardSize()
 
 	// ９路盤なら
@@ -139,7 +139,7 @@ func PrimitiveMonteCalro(position *be.Position, color int, printBoard func(*be.P
 				var boardCopy2 = (*position).CopyData()
 				koZCopy2 := position.KoIdx
 
-				win := -Playout(position, stone.FlipColor(color), printBoard)
+				win := -Playout(position, stone.FlipColor(color), createBoardString)
 
 				winSum += win
 				position.KoIdx = koZCopy2
@@ -159,11 +159,11 @@ func PrimitiveMonteCalro(position *be.Position, color int, printBoard func(*be.P
 }
 
 // GetComputerMove - コンピューターの指し手。
-func GetComputerMove(position *be.Position, color int, fUCT int, printBoard func(*be.Position)) int {
+func GetComputerMove(position *be.Position, color int, fUCT int, createBoardString func(*be.Position) string) int {
 	var tIdx int
 	start := time.Now()
 	AllPlayouts = 0
-	tIdx = PrimitiveMonteCalro(position, color, printBoard)
+	tIdx = PrimitiveMonteCalro(position, color, createBoardString)
 	sec := time.Since(start).Seconds()
 	fmt.Printf("(GetComputerMove) %.1f sec, %.0f playout/sec, play=%s,moves=%d,color=%d,playouts=%d,fUCT=%d\n",
 		sec, float64(AllPlayouts)/sec, (*position).GetNameFromTIdx(tIdx), position.MovesNum, color, AllPlayouts, fUCT)
