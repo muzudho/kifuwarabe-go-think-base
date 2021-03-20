@@ -109,14 +109,15 @@ func countScore(position *be.Position, turnColor int) int {
 	return win
 }
 
-// PrimitiveMonteCalro - モンテカルロ木探索 Version 9a.
-func PrimitiveMonteCalro(position *be.Position, color int, createBoardString func(*be.Position) string) int {
+// PrimitiveMonteCalro - モンテカルロ木探索
+// `tryNum` - トライ回数
+func PrimitiveMonteCalro(position *be.Position, color int, createBoardString func(*be.Position) string, tryNum int) int {
 	boardSize := (*position).BoardSize()
 
 	// ９路盤なら
 	// tryNum := 30
 	// １９路盤なら
-	tryNum := 3
+	// tryNum := 3
 	bestTIdx := 0
 	var bestValue, winRate float64
 	var boardCopy = (*position).CopyData()
@@ -158,12 +159,13 @@ func PrimitiveMonteCalro(position *be.Position, color int, createBoardString fun
 	return bestTIdx
 }
 
-// GetComputerMove - コンピューターの指し手。
-func GetComputerMove(position *be.Position, color int, fUCT int, createBoardString func(*be.Position) string) int {
+// GetComputerMove - コンピューターの指し手
+// `tryNum` - トライ回数
+func GetComputerMove(position *be.Position, color int, fUCT int, createBoardString func(*be.Position) string, tryNum int) int {
 	var tIdx int
 	start := time.Now()
 	AllPlayouts = 0
-	tIdx = PrimitiveMonteCalro(position, color, createBoardString)
+	tIdx = PrimitiveMonteCalro(position, color, createBoardString, tryNum)
 	sec := time.Since(start).Seconds()
 	fmt.Printf("(GetComputerMove) %.1f sec, %.0f playout/sec, play=%s,moves=%d,color=%d,playouts=%d,fUCT=%d\n",
 		sec, float64(AllPlayouts)/sec, (*position).GetNameFromTIdx(tIdx), position.MovesNum, color, AllPlayouts, fUCT)
